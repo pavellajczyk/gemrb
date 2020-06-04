@@ -28,8 +28,10 @@ import GUICommon
 import GUICommonWindows
 import CommonWindow
 from GUIDefines import *
+from ie_stats import *
 import MessageWindow
 
+FRAME_PC_SELECTED = 0
 FormationWindow = None
 ReformPartyWindow = None
 
@@ -102,11 +104,30 @@ def OpenReformPartyWindow ():
 	GemRB.SetVar ("OtherWindow", Window.ID)
 	GUICommonWindows.DisableAnimatedWindows ()
 
+        removable_pcs = []
+        for i in range(1, GemRB.GetPartySize()+1):
+                if not GemRB.GetPlayerStat (i, IE_MC_FLAGS)&MC_EXPORTABLE:
+                        removable_pcs.append(i)
+        PortraitButtons = GUICommonWindows.GetPortraitButtonPairs (Window)
+        for j in PortraitButtons:
+            Button = PortraitButtons[j]
+
+        for i in removable_pcs:
+            pic = GemRB.GetPlayerPortrait(i, 1)
+            index = removable_pcs.index(i)
+            Button = PortraitButtons[index]
+            if not pic:
+                Button.SetFlags (IE_GUI_BUTTON_NO_IMAGE, OP_SET)
+                Button.SetState (IE_GUI_BUTTON_LOCKED)
+            else:
+                Button.SetState (IE_GUI_BUTTON_ENABLED)
+		Button.SetFlags (IE_GUI_BUTTON_RADIOBUTTON|IE_GUI_BUTTON_NO_IMAGE|IE_GUI_BUTTON_PICTURE,OP_SET)
+                Button.SetPicture (pic)
+
 	# Remove
 	Button = Window.GetControl (15)
 	Button.SetText (42514)
 	Button.SetState (IE_GUI_BUTTON_DISABLED)
-	# TODO: implement removal
 
 	# Done
 	Button = Window.GetControl (8)
